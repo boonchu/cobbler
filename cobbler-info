@@ -1,0 +1,58 @@
+#! /usr/bin/env python
+
+from koan import utils
+import sys
+import os
+
+attributes = ["images", "profiles", "systems", "distros", "repos"]
+
+def hook(what, name=None):
+  try:
+    if what[-1] == 's':
+      data = getattr(xmlrpc_server, "get_%s"%what)()
+    else:
+      data = getattr(xmlrpc_server, "get_%s_as_rendered"%what)(name)
+  except:
+    traceback.print_exc()
+    raise Exception("Cobbler Connection failure")
+    sys.exit(2)
+    
+  return data
+
+def list(what):
+  if what not in attributes:
+    raise Exception("I do not know what you play with!")
+  items = hook(what)
+  print "what is it? %s"%what
+  for item in items:
+    if 'name' in item:
+      print item['name']
+  return True	
+
+try:
+  utils.setupLogging("koan")
+except:
+  pass
+
+try:
+  xmlrpc_server = utils.connect_to_server(server='server1.example.com', port=443)
+  if not os.getuid() == 0:
+    raise Exception("this operation requires root access")
+    
+  list('profiles')
+  list('systems')
+  list('distros')
+  list('repos')
+  list('images')
+
+  system = 'node1'
+  if system:
+    item = hook('system', system)
+  else:
+    item = {}
+  for key, value in item.items():
+    if 'mac' in key:
+      print "(%s,%s)"%(key,value)
+
+except Exception as detail:
+  print '[ERROR] :', detail
