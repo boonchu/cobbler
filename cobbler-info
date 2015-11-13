@@ -22,12 +22,11 @@ def hook(what, name=None):
 def list(what):
   if what not in attributes:
     raise Exception("I do not know what you play with!")
-  items = hook(what)
+    sys.exit(2)
+  _items = hook(what)
   print "what is it? %s"%what
-  for item in items:
-    if 'name' in item:
-      print item['name']
-  return True	
+  _alist = [ item['name'] for item in _items if 'name' in item ]
+  return _alist
 
 try:
   utils.setupLogging("koan")
@@ -39,20 +38,19 @@ try:
   if not os.getuid() == 0:
     raise Exception("this operation requires root access")
     
-  list('profiles')
-  list('systems')
-  list('distros')
-  list('repos')
-  list('images')
+  profiles = list('profiles')
+  systems = list('systems')
+  distros = list('distros')
+  repos = list('repos')
+  images = list('images')
 
-  system = 'node1'
-  if system:
-    item = hook('system', system)
-  else:
-    item = {}
-  for key, value in item.items():
-    if 'mac' in key:
-      print "(%s,%s)"%(key,value)
+  for system in systems:
+    if system:
+      item = hook('system', system)
+    else:
+      item = {}
+    for key, value in item.items():
+      if 'mac' in key: print "{ %s : %s }"%(key,value)
 
 except Exception as detail:
   print '[ERROR] :', detail
