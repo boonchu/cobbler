@@ -43,7 +43,6 @@ try:
   pprint(profiles)
   systems = list('systems')
 
-
   for system in systems:
     if system:
       item = hook('system', system)
